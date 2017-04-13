@@ -26,7 +26,7 @@ public:
 	void log_enhance();
 	void RGB_histogram_fitting();
 	void Y_histogram_fitting();
-	void fit_one_color(unsigned char*);
+	void fit_one_color(int *);
 	void color2data();
 private:
 	FILE* file;
@@ -37,12 +37,12 @@ private:
 	int row_size;
 	unsigned char* color_data;
 	unsigned char* new_color_data;
-	unsigned char* R;
-	unsigned char* G;
-	unsigned char* B;
-	unsigned char* Y;
-	unsigned char* U;
-	unsigned char* V;
+	int* R;
+	int* G;
+	int* B;
+	int* Y;
+	int* U;
+	int* V;
 	bool* bin;
 	bool* new_bin;
 	int max_Y;

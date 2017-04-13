@@ -41,12 +41,12 @@ void BmpFile::load(const char* file_path){
 	color_data = new unsigned char[row_size * height * 3];
 	new_color_data = new unsigned char[row_size * height * 3];
 	
-	R = new unsigned char[width * height];
-	G = new unsigned char[width * height];
-	B = new unsigned char[width * height];
-	Y = new unsigned char[width * height];
-	U = new unsigned char[width * height];
-	V = new unsigned char[width * height];
+	R = new int[width * height];
+	G = new int[width * height];
+	B = new int[width * height];
+	Y = new int[width * height];
+	U = new int[width * height];
+	V = new int[width * height];
 	fread(color_data, sizeof(char), row_size*height*3, file);
 	memcpy(new_color_data, color_data, row_size*height*3);
 
@@ -322,7 +322,7 @@ void BmpFile::log_enhance(){
 	}
 	this->convertToColorful();
 }
-void BmpFile::fit_one_color(unsigned char* X){
+void BmpFile::fit_one_color(int* X){
 	int sum[256] = {0,};
 	int pix = width*height;
 	for(int y = 0; y < height; y++) {

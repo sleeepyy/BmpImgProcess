@@ -8,10 +8,12 @@ int main(int argc, char const *argv[])
 
 	img.load("scene.bmp");
 	img.printFileInfo();
-	img.log_enhance();
-	img.save("scene_enhance.bmp");
+	// img.log_enhance();
+	// img.save("scene_enhance.bmp");
 	img.RGB_histogram_fitting();
 	img.save("scene_RGB_fitting.bmp");
-	
+
+	img.Y_histogram_fitting();
+	img.save("scene_Y_fitting.bmp");
 	return 0;
 }
