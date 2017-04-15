@@ -6,7 +6,7 @@ class BmpFile{
 public:
 	BmpFile();
 	~BmpFile();
-	// void load(std::string);
+	void load(std::string);
 	// void save(std::string);
 	void load(const char*);
 	void save(const char*);
@@ -30,6 +30,8 @@ public:
 	void color2data();
 private:
 	FILE* file;
+	// std::ifstream infile;
+	// std::ofstream outfile;
 	int width, height;
 	int header_size;
 	int file_size;
@@ -50,5 +52,6 @@ private:
 	unsigned char* file_header;
 	unsigned char clip_value(double);
 	int calculateThre(int, int, int, int);
+	//void file_load();
 };
 

@@ -5,15 +5,10 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
 	BmpFile img;
-
-	img.load("scene.bmp");
+	string filename("scene.bmp");
+	img.load(filename);
 	img.printFileInfo();
-	// img.log_enhance();
-	// img.save("scene_enhance.bmp");
-	img.RGB_histogram_fitting();
-	img.save("scene_RGB_fitting.bmp");
-
-	img.Y_histogram_fitting();
-	img.save("scene_Y_fitting.bmp");
+	// img.load("scene.bmp");
+	// img.printFileInfo();
 	return 0;
 }
