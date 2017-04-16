@@ -484,6 +484,48 @@ void BmpFile::translate(int x, int y){
 // void BmpFile::rotate(double);
 // void BmpFile::scale(int);
 // void BmpFile::shear(int);
-// void BmpFile::x_mirror();
-// void BmpFile::y_mirror();
+void BmpFile::x_mirror(){
+	int half = height/2;
+	int temp = 0;
+	for (int i = 0; i < half; ++i)
+	{
+		for (int j = 0; j < width; ++j)
+		{
+			int position1 = i*width + j;
+			int position2 = (height-i-1)*width + j;
+			temp = R[position1];
+			R[position1] = R[position2];
+			R[position2] = temp;
+			temp = G[position1];
+			G[position1] = G[position2];
+			G[position2] = temp;
+			temp = B[position1];
+			B[position1] = B[position2];
+			B[position2] = temp;
+		}
+	}
+	this->color2data();
+}
+void BmpFile::y_mirror(){
+	int half = width/2;
+	int temp = 0;
+	for (int i = 0; i < height; ++i)
+	{
+		for (int j = 0; j < half; ++j)
+		{
+			int position1 = i*width + j;
+			int position2 = i*width + width-j-1;
+			temp = R[position1];
+			R[position1] = R[position2];
+			R[position2] = temp;
+			temp = G[position1];
+			G[position1] = G[position2];
+			G[position2] = temp;
+			temp = B[position1];
+			B[position1] = B[position2];
+			B[position2] = temp;
+		}
+	}
+	this->color2data();
+}
 

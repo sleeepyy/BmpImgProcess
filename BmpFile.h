@@ -32,13 +32,11 @@ public:
 	// void rotate(double);
 	// void scale(int);
 	// void shear(int);
-	// void x_mirror();
-	// void y_mirror();
+	void x_mirror();
+	void y_mirror();
 
 private:
 	FILE* file;
-	// std::ifstream infile;
-	// std::ofstream outfile;
 	int width, height;
 	int header_size;
 	int file_size;
