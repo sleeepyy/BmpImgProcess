@@ -1,9 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <cmath>
-#include <iomanip>
+#include <bits/stdc++.h>
 #include "BmpFile.h"
 using namespace std;
 
@@ -13,39 +8,6 @@ BmpFile::BmpFile():new_color_data(NULL),color_data(NULL){
 	new_bin = NULL;
 	R=G=B=Y=U=V=NULL;
 }
-// void BmpFile::file_load(){
-// 	infile.seekg(2, ios::beg);
-// 	infile.read((char*)&file_size, sizeof(int));
-// 	std::cout << file_size <<std::endl;
-// 	infile.seekg(10, ios::beg);
-// 	infile.read((char*)&raw_color_data_offset, sizeof(int));
-//     infile.seekg(18,ios::beg);
-//     infile.read((char*)&width,sizeof(int));
-//     infile.read((char*)&height,sizeof(int));
-// 	row_size = 4 * ceil( 3.0 * width / 4.0 ); // 4 bytes 
-
-//     color_data = new unsigned char[row_size * height * 3];
-// 	R = new int[width * height];
-// 	G = new int[width * height];
-// 	B = new int[width * height];
-// 	Y = new int[width * height];
-// 	U = new int[width * height];
-// 	V = new int[width * height];
-//     infile.seekg(raw_color_data_offset, ios::beg);
-// 	infile.read((char*)color_data, row_size*height*3);
-	
-// 	for(int y = 0; y < height; y++) {
-// 		for(int x = 0; x < width; x++) {
-// 			int position = width * y + x;
-// 			R[position] = color_data[(row_size*y + 3*x) + 2];
-// 			G[position] = color_data[(row_size*y + 3*x) + 1];
-// 			B[position] = color_data[(row_size*y + 3*x) + 0];
-// 		}
-// 	}
-
-// 	this->RGB2YUV();
-// }
-
 void BmpFile::load(string file_path){
 	this->~BmpFile();
 	ifstream infile(file_path, ios::in|ios::binary);
@@ -53,27 +15,30 @@ void BmpFile::load(string file_path){
 		std::cout << "Open file failed." << std::endl;
 		exit(OPEN_FILE_ERROR);
 	}
-	cout << "start to process img" <<endl;
+	// cout << "start to process img" <<endl;
 	infile.seekg(2, ios::beg);
 	infile.read((char*)&file_size, sizeof(int));
-	std::cout << file_size <<std::endl;
+	infile.seekg(34, ios::beg);
+	infile.read((char*)&bi_size_image, sizeof(int));
 	infile.seekg(10, ios::beg);
 	infile.read((char*)&raw_color_data_offset, sizeof(int));
-    infile.seekg(18,ios::beg);
-    infile.read((char*)&width,sizeof(int));
-    infile.read((char*)&height,sizeof(int));
+	infile.seekg(18,ios::beg);
+	infile.read((char*)&width,sizeof(int));
+	infile.read((char*)&height,sizeof(int));
 	row_size = 4 * ceil( 3.0 * width / 4.0 ); // 4 bytes 
 
-    color_data = new unsigned char[row_size * height * 3];
+	color_data = new unsigned char[row_size * height];
+	new_color_data = new unsigned char[row_size * height];
 	R = new int[width * height];
 	G = new int[width * height];
 	B = new int[width * height];
 	Y = new int[width * height];
 	U = new int[width * height];
 	V = new int[width * height];
-    infile.seekg(raw_color_data_offset, ios::beg);
-	infile.read((char*)color_data, row_size*height*3);
-	
+	infile.seekg(raw_color_data_offset, ios::beg);
+	infile.read((char*)color_data, row_size*height);
+	memcpy(new_color_data, color_data, row_size*height);
+
 	for(int y = 0; y < height; y++) {
 		for(int x = 0; x < width; x++) {
 			int position = width * y + x;
@@ -82,56 +47,13 @@ void BmpFile::load(string file_path){
 			B[position] = color_data[(row_size*y + 3*x) + 0];
 		}
 	}
-
 	this->RGB2YUV();
 	infile.close();
 }
 
 void BmpFile::load(const char* file_path){
-	this->~BmpFile();
-	ifstream infile(file_path, ios::in|ios::binary);
-	if(!infile){
-		std::cout << "Open file failed." << std::endl;
-		exit(OPEN_FILE_ERROR);
-	}
-	//this->file_load();
-	// char tmp[10];
-	// fread(tmp, sizeof(char), 2, file); // 0x0h ~ 0x2h
-	// fread(&file_size, sizeof(int), 1, file); // 0x2h ~ 0x6h
-	// fread(tmp, sizeof(char), 4, file);  // 0x6h ~ 0xAh
-	// fread(&raw_color_data_offset, sizeof(int), 1, file); // 0xAh ~ 0xEh
-	// fread(&header_size, sizeof(int), 1, file); // 0xEh ~ 0x12h
-	// fread(&width, sizeof(int), 1, file);
-	// fread(&height, sizeof(int), 1, file);
-
-	// fseek(file, 0, SEEK_SET);
-	// file_header = new unsigned char[raw_color_data_offset];
-	// fread(file_header, sizeof(char), raw_color_data_offset, file);
-
-	// row_size = 4 * ceil( 3.0 * width / 4.0 ); // 4 bytes 
-	// // printf("%d\n", row_size);
-	// color_data = new unsigned char[row_size * height * 3];
-	// new_color_data = new unsigned char[row_size * height * 3];
-	
-	// R = new int[width * height];
-	// G = new int[width * height];
-	// B = new int[width * height];
-	// Y = new int[width * height];
-	// U = new int[width * height];
-	// V = new int[width * height];
-	// fread(color_data, sizeof(char), row_size*height*3, file);
-	// memcpy(new_color_data, color_data, row_size*height*3);
-
-
-	// for(int y = 0; y < height; y++) {
-	// 	for(int x = 0; x < width; x++) {
-	// 		int position = width * y + x;
-	// 		R[position] = color_data[(row_size*y + 3*x) + 2];
-	// 		G[position] = color_data[(row_size*y + 3*x) + 1];
-	// 		B[position] = color_data[(row_size*y + 3*x) + 0];
-	// 	}
-	// }
-	// this->RGB2YUV();
+	string file_p(file_path);
+	this->load(file_p);
 }
 
 BmpFile::~BmpFile(){
@@ -146,12 +68,74 @@ BmpFile::~BmpFile(){
 	R=G=B=Y=U=V=NULL;
 }
 
+void BmpFile::save(string file_path){
+	char header[54] = {
+	  0x42,        // identity : B
+	  0x4d,        // identity : M
+	  0, 0, 0, 0,  // file size
+	  0, 0,        // reserved1
+	  0, 0,        // reserved2
+	  54, 0, 0, 0, // RGB data offset
+	  40, 0, 0, 0, // struct BITMAPINFOHEADER size
+	  0, 0, 0, 0,  // bmp width
+	  0, 0, 0, 0,  // bmp height
+	  1, 0,        // planes
+	  24, 0,       // bit per pixel
+	  0, 0, 0, 0,  // compression
+	  0, 0, 0, 0,  // data size
+	  0, 0, 0, 0,  // h resolution
+	  0, 0, 0, 0,  // v resolution 
+	  0, 0, 0, 0,  // used colors
+	  0, 0, 0, 0   // important colors
+	};
+
+	ofstream outfile(file_path, ios::out|ios::binary);
+	 
+	if(!outfile){
+		cout << " Write image error!!" << endl;
+		exit(SAVE_FILE_ERROR);
+	}
+
+	// file size = width * height * 3 + rgb_raw_data_offset  ;
+	header[2] = (unsigned char)(file_size & 0x000000ff);
+	header[3] = (file_size >> 8)  & 0x000000ff;
+	header[4] = (file_size >> 16) & 0x000000ff;
+	header[5] = (file_size >> 24) & 0x000000ff;
+	
+	// width
+	header[18] = width & 0x000000ff;
+	header[19] = (width >> 8)  & 0x000000ff;
+	header[20] = (width >> 16) & 0x000000ff;
+	header[21] = (width >> 24) & 0x000000ff;
+
+	// height
+	header[22] = height &0x000000ff;
+	header[23] = (height >> 8)  & 0x000000ff;
+	header[24] = (height >> 16) & 0x000000ff;
+	header[25] = (height >> 24) & 0x000000ff;  
+
+	header[34] = bi_size_image &0x000000ff;
+	header[35] = (bi_size_image >> 8)  & 0x000000ff;
+	header[36] = (bi_size_image >> 16) & 0x000000ff;
+	header[37] = (bi_size_image >> 24) & 0x000000ff; 
+
+	// write header
+	outfile.write(header,54);
+
+	// write image
+	if(new_color_data != NULL){
+		outfile.write((char*)new_color_data,sizeof(char)* row_size * height);
+	}
+	else{
+		outfile.write((char*)color_data,sizeof(char)* row_size * height);
+	}
+	outfile.close();
+}
+
+
 void BmpFile::save(const char* file_path){
-	FILE* save_file = fopen(file_path, "wb");
-	if(save_file == NULL)exit(SAVE_FILE_ERROR);
-	fwrite(file_header, sizeof(char), raw_color_data_offset, save_file);
-	fwrite(new_color_data, sizeof(char), row_size*height, save_file);
-	fclose(save_file);
+	string file_p(file_path);
+	this->save(file_p);
 }
 
 void BmpFile::RGB2YUV(){
@@ -179,9 +163,9 @@ void BmpFile:: rearrangeY(){
 	}	
 }
 unsigned char BmpFile::clip_value(double value){
-	//printf("%d\n", value);
-	//if(value < 0)return 0;
-	return value > 255 ? 255 : value;
+	value = value > 255 ? 255 : value;
+	value = value < 0 ? 0 : value;
+	return value;
 }
 
 void BmpFile::YUV2RGB(){
@@ -227,7 +211,7 @@ void BmpFile::color2data(){
 }
 
 void BmpFile::printFileInfo(){
-	std::cout << std::setw(25) <<"file_size: " << std::hex << file_size << " KB" << std::endl;
+	std::cout << std::setw(25) <<"file_size: " << std::dec << file_size << " KB" << std::endl;
 	std::cout << std::setw(25) <<"width: " << width << " px" << std::endl;
 	std::cout << std::setw(25) <<"height: " << height << " px" << std::endl;
 	std::cout << std::setw(25) <<"raw_color_data_offset: " << "0x" << std::hex << raw_color_data_offset << "h" << std::dec << std::endl;
@@ -446,4 +430,60 @@ void BmpFile::Y_histogram_fitting(){
 	this->YUV2RGB();
 	this->color2data();
 }
+
+
+void BmpFile::translate(int x, int y){
+	int new_width = width + abs(x);
+	int new_height = height + abs(y);
+	int new_rowsize = ((new_width*3-1)/4+1)*4;
+
+	int* temp_R = new int[width*height];
+	int* temp_B = new int[width*height];
+	int* temp_G = new int[width*height];
+	memcpy(temp_R, R, sizeof(int)*width*height);
+	memcpy(temp_G, G, sizeof(int)*width*height);
+	memcpy(temp_B, B, sizeof(int)*width*height);
+
+	delete[] new_color_data;
+	delete[] R, G, B;
+	delete[] Y, U, V;
+	delete[] new_bin;
+	new_color_data = new unsigned char[new_rowsize*new_height];
+	memset(new_color_data, 0, sizeof(unsigned char)*new_rowsize*new_height);
+
+	R = new int[new_width*new_height];
+	G = new int[new_width*new_height];
+	B = new int[new_width*new_height];
+
+	Y = new int[new_width*new_height];
+	U = new int[new_width*new_height];
+	V = new int[new_width*new_height];
+	new_bin = new bool[new_width*new_height];
+
+	int tx, ty;
+	for (int i = 0; i < height; ++i)
+	{
+		for (int j = 0; j < width; ++j)
+		{
+			int position = i*width + j;
+			tx = x>0?x:0;
+			ty = y<0?-1*y:0;
+			R[(i+ty)*new_width+j+tx] = temp_R[position];
+			G[(i+ty)*new_width+j+tx] = temp_G[position];
+			B[(i+ty)*new_width+j+tx] = temp_B[position];
+		}
+	}
+	delete[] temp_R, temp_G, temp_B;
+	width = new_width;
+	height = new_height;
+	row_size = new_rowsize;
+	file_size = row_size*height + 54;
+	this->color2data();
+	this->RGB2YUV();
+}
+// void BmpFile::rotate(double);
+// void BmpFile::scale(int);
+// void BmpFile::shear(int);
+// void BmpFile::x_mirror();
+// void BmpFile::y_mirror();
 
