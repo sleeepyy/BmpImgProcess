@@ -1,5 +1,5 @@
 enum ERRORS{
-	OPEN_FILE_ERROR, SAVE_FILE_ERROR
+	OPEN_FILE_ERROR, SAVE_FILE_ERROR, ARGUMENT_ERROR
 };
 
 class BmpFile{
@@ -29,9 +29,9 @@ public:
 	void Y_histogram_fitting();
 	void fit_one_color(int *);
 	void translate(int, int);
-	// void rotate(double);
-	// void scale(int);
-	// void shear(int);
+	void rotate(double);
+	void scale(double, double);
+	void shear(double, char);
 	void x_mirror();
 	void y_mirror();
 

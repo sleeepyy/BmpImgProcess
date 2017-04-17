@@ -460,6 +460,14 @@ void BmpFile::translate(int x, int y){
 	V = new int[new_width*new_height];
 	new_bin = new bool[new_width*new_height];
 
+	memset(R, 0, sizeof(int)*new_width*new_height);
+	memset(G, 0, sizeof(int)*new_width*new_height);
+	memset(B, 0, sizeof(int)*new_width*new_height);
+	memset(Y, 0, sizeof(int)*new_width*new_height);
+	memset(U, 0, sizeof(int)*new_width*new_height);
+	memset(V, 0, sizeof(int)*new_width*new_height);
+
+
 	int tx, ty;
 	for (int i = 0; i < height; ++i)
 	{
@@ -481,9 +489,6 @@ void BmpFile::translate(int x, int y){
 	this->color2data();
 	this->RGB2YUV();
 }
-// void BmpFile::rotate(double);
-// void BmpFile::scale(int);
-// void BmpFile::shear(int);
 void BmpFile::x_mirror(){
 	int half = height/2;
 	int temp = 0;
@@ -506,6 +511,7 @@ void BmpFile::x_mirror(){
 	}
 	this->color2data();
 }
+
 void BmpFile::y_mirror(){
 	int half = width/2;
 	int temp = 0;
@@ -529,3 +535,191 @@ void BmpFile::y_mirror(){
 	this->color2data();
 }
 
+void BmpFile::shear(double d, char c){
+	int orientation;
+	if(d<0)exit(ARGUMENT_ERROR);
+	int new_width = width;
+	int new_height = height;
+	if(c=='x' || c=='X'){
+		orientation = 0;
+		new_width += d*height;
+	}
+	else if(c=='y' || c=='Y'){
+		orientation = 1;
+		new_height += d*width;
+	}
+	else exit(ARGUMENT_ERROR);
+	int new_rowsize = ((new_width*3-1)/4+1)*4;
+
+	int* temp_R = new int[width*height];
+	int* temp_B = new int[width*height];
+	int* temp_G = new int[width*height];
+	memcpy(temp_R, R, sizeof(int)*width*height);
+	memcpy(temp_G, G, sizeof(int)*width*height);
+	memcpy(temp_B, B, sizeof(int)*width*height);
+
+	delete[] new_color_data;
+	delete[] R, G, B;
+	delete[] Y, U, V;
+	delete[] new_bin;
+	new_color_data = new unsigned char[new_rowsize*new_height];
+	memset(new_color_data, 0, sizeof(unsigned char)*new_rowsize*new_height);
+
+	R = new int[new_width*new_height];
+	G = new int[new_width*new_height];
+	B = new int[new_width*new_height];
+
+	Y = new int[new_width*new_height];
+	U = new int[new_width*new_height];
+	V = new int[new_width*new_height];
+	new_bin = new bool[new_width*new_height];
+	memset(R, 0, sizeof(int)*new_width*new_height);
+	memset(G, 0, sizeof(int)*new_width*new_height);
+	memset(B, 0, sizeof(int)*new_width*new_height);
+	memset(Y, 0, sizeof(int)*new_width*new_height);
+	memset(U, 0, sizeof(int)*new_width*new_height);
+	memset(V, 0, sizeof(int)*new_width*new_height);
+
+	for (int i = 0; i < height; ++i)
+	{
+		for (int j = 0; j < width; ++j)
+		{
+			int position = i*width + j;
+			int new_position;
+			if(orientation == 0) new_position =  i*new_width + j + d*i;
+			else new_position = i*new_width+d*new_width*j+j;
+			//cout << new_position << " " <<i << " " << j << " " << endl;;
+			R[new_position] = temp_R[position];
+			G[new_position] = temp_G[position];
+			B[new_position] = temp_B[position];
+		}
+	}
+	delete[] temp_R, temp_G, temp_B;
+	width = new_width;
+	height = new_height;
+	row_size = new_rowsize;
+	file_size = row_size*height + 54;
+	this->color2data();
+	this->RGB2YUV();
+}
+
+void BmpFile::scale(double dx, double dy){
+	int new_width = width*dx;
+	int new_height = height*dy;
+	int new_rowsize = ((new_width*3-1)/4+1)*4;
+
+	int* temp_R = new int[width*height];
+	int* temp_B = new int[width*height];
+	int* temp_G = new int[width*height];
+	memcpy(temp_R, R, sizeof(int)*width*height);
+	memcpy(temp_G, G, sizeof(int)*width*height);
+	memcpy(temp_B, B, sizeof(int)*width*height);
+
+	delete[] new_color_data;
+	delete[] R, G, B;
+	delete[] Y, U, V;
+	delete[] new_bin;
+	new_color_data = new unsigned char[new_rowsize*new_height];
+	memset(new_color_data, 0, sizeof(unsigned char)*new_rowsize*new_height);
+
+	R = new int[new_width*new_height];
+	G = new int[new_width*new_height];
+	B = new int[new_width*new_height];
+
+	Y = new int[new_width*new_height];
+	U = new int[new_width*new_height];
+	V = new int[new_width*new_height];
+	new_bin = new bool[new_width*new_height];
+	memset(R, 0, sizeof(int)*new_width*new_height);
+	memset(G, 0, sizeof(int)*new_width*new_height);
+	memset(B, 0, sizeof(int)*new_width*new_height);
+	memset(Y, 0, sizeof(int)*new_width*new_height);
+	memset(U, 0, sizeof(int)*new_width*new_height);
+	memset(V, 0, sizeof(int)*new_width*new_height);
+
+	for (int i = 0; i < new_height; ++i)
+	{
+		for (int j = 0; j < new_width; ++j)
+		{
+			int new_position = i*new_width + j;
+			int position = floor(i/dy)*width + floor(j/dx);
+			// cout << i <<" " <<j <<" "<<i/dy <<" " <<j/dx << endl;
+			R[new_position] = temp_R[position];
+			G[new_position] = temp_G[position];
+			B[new_position] = temp_B[position];
+		}
+	}
+	delete[] temp_R, temp_G, temp_B;
+	width = new_width;
+	height = new_height;
+	row_size = new_rowsize;
+	file_size = row_size*height + 54;
+	this->color2data();
+	this->RGB2YUV();
+}
+
+void BmpFile::rotate(double angle){
+	int tw = width, th = height;
+	int* temp_R = new int[tw*th];
+	int* temp_B = new int[tw*th];
+	int* temp_G = new int[tw*th];
+	memcpy(temp_R, R, sizeof(int)*tw*th);
+	memcpy(temp_G, G, sizeof(int)*tw*th);
+	memcpy(temp_B, B, sizeof(int)*tw*th);
+	this->translate(tw, th);
+	this->translate(0, -1*th);
+	int new_width = width;
+	int new_height = height;
+	//cout << new_width << " " << new_height<< endl;
+	int new_rowsize = ((new_width*3-1)/4+1)*4;
+
+
+	delete[] new_color_data;
+	delete[] R, G, B;
+	delete[] Y, U, V;
+	delete[] new_bin;
+	new_color_data = new unsigned char[new_rowsize*new_height];
+	memset(new_color_data, 0, sizeof(unsigned char)*new_rowsize*new_height);
+
+	R = new int[new_width*new_height];
+	G = new int[new_width*new_height];
+	B = new int[new_width*new_height];
+
+	Y = new int[new_width*new_height];
+	U = new int[new_width*new_height];
+	V = new int[new_width*new_height];
+	new_bin = new bool[new_width*new_height];
+	memset(R, 0, sizeof(int)*new_width*new_height);
+	memset(G, 0, sizeof(int)*new_width*new_height);
+	memset(B, 0, sizeof(int)*new_width*new_height);
+	memset(Y, 0, sizeof(int)*new_width*new_height);
+	memset(U, 0, sizeof(int)*new_width*new_height);
+	memset(V, 0, sizeof(int)*new_width*new_height);
+
+	for (int i = 0; i < new_height; ++i)
+	{
+		for (int j = 0; j < new_width; ++j)
+		{
+			int new_position = i*new_width + j;
+			int ti = i-th, tj = j-tw;
+			int tti = floor(ti*cos(angle)-tj*sin(angle));
+			int ttj = floor(tj*cos(angle)+ti*sin(angle));
+			// cout << tti <<" " << ttj  << endl;
+			if(tti>=0 && tti<th && ttj>=0 && ttj<tw){
+				//cout <<i<<" "<<j <<" "<< tti <<" " << ttj  << endl;
+				int position = tti*tw+ttj;
+				R[new_position] = temp_R[position];
+				G[new_position] = temp_G[position];
+				B[new_position] = temp_B[position];
+				//cout << R[new_position] << G[new_position] <<B[new_position]<< endl;
+			}
+		}
+	}
+	delete[] temp_R, temp_G, temp_B;
+	width = new_width;
+	height = new_height;
+	row_size = new_rowsize;
+	file_size = row_size*height + 54;
+	this->color2data();
+	this->RGB2YUV();
+}
