@@ -723,3 +723,88 @@ void BmpFile::rotate(double angle){
 	this->color2data();
 	this->RGB2YUV();
 }
+
+void BmpFile::mean_filter(int len){
+	this->RGB2YUV();
+	int l = len/2;
+	int cnt = len*len;
+	int value = 0;
+	for (int i = 0; i < height; ++i)
+	{
+		for (int j = 0; j < width; ++j)
+		{
+			value = 0;
+			int position = i*width + j;
+			if(j-l>=0 && j+l<width && i-l>=0 && i+l < height){
+				for (int m = 0; m < len; ++m)
+				{
+					for (int n = 0; n < len; ++n)
+					{
+						int new_position = (i-l+m)*width + j-l+n;
+						value += Y[new_position];
+					}
+				}
+				R[position] = G[position] = B[position] = value/cnt;
+			}else{
+				int count = 0;
+				for (int m = 0; m < len; ++m)
+				{
+					for (int n = 0; n < len; ++n)
+					{
+						if(j-l+n>=0 && j-l+n<width && i-l+m>=0 && i-l+m < height){
+							int new_position = (i-l+m)*width + j-l+n;
+							value += Y[new_position];
+							++count;
+						}
+					}
+				}
+				R[position] = G[position] = B[position] = value/count;	
+			}
+		}
+	}
+	this->color2data();
+}
+
+
+void BmpFile::laplacian_enhance(int len, double weight){
+	this->RGB2YUV();
+	int l = len/2;
+	int cnt = len*len;
+	int laplacian = 0;
+	for (int i = 0; i < height; ++i)
+	{
+		for (int j = 0; j < width; ++j)
+		{
+			laplacian = 0;
+			int position = i*width + j;
+			if(j-l>=0 && j+l<width && i-l>=0 && i+l < height){
+				for (int m = 0; m < len; ++m)
+				{
+					for (int n = 0; n < len; ++n)
+					{
+						int new_position = (i-l+m)*width + j-l+n;
+						laplacian += Y[new_position];
+					}
+				}
+				laplacian -= 9*Y[position];
+				R[position] = G[position] = B[position] = Y[position] - weight*laplacian;
+			}else{
+				int count = 0;
+				for (int m = 0; m < len; ++m)
+				{
+					for (int n = 0; n < len; ++n)
+					{
+						if(j-l+n>=0 && j-l+n<width && i-l+m>=0 && i-l+m < height){
+							int new_position = (i-l+m)*width + j-l+n;
+							laplacian += Y[new_position];
+							++count;
+						}
+					}
+				}
+				laplacian -= count*Y[position];
+				R[position] = G[position] = B[position] = Y[position] - weight*laplacian;
+			}
+		}
+	}
+	this->color2data();	
+}

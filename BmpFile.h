@@ -34,6 +34,8 @@ public:
 	void shear(double, char);
 	void x_mirror();
 	void y_mirror();
+	void mean_filter(int);
+	void laplacian_enhance(int, double);
 
 private:
 	FILE* file;
